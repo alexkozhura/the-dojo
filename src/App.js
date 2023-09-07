@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Route, Routes, Navigate, BrowserRouter } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
+import { useAuthContext } from './hooks/useAuthContext'
 
 import './App.css'
 
@@ -12,21 +13,26 @@ import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
 
 function App() {
+  const { user, authIsReady } = useAuthContext()
+
   return (
     <div className="App">
-      <BrowserRouter>
-        <Sidebar />
-          <div className="container">
-            <Navbar />
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/create" element={<Create />} />
-                <Route path="/project/:id" element={<Project />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/login" element={<Login />} />
-              </Routes>
-          </div>
-      </BrowserRouter>
+      {/* only display the app after we've figured out if the user is logged in or not */}
+      {authIsReady && (
+        <Router>
+          <Sidebar />
+            <div className="container">
+              <Navbar />
+                <Routes>
+                  <Route path="/" element={user ? <Dashboard /> : <Navigate to="/login" />} />
+                  <Route path="/create" element={user ? <Create /> : <Navigate to="/login" />} />
+                  <Route path="/project/:id" element={user ? <Project /> : <Navigate to="/login" />} />
+                  <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/" />} />
+                  <Route path="/login" element={!user ? <Login /> : < Navigate to="/"/>} />
+                </Routes>
+            </div>
+        </Router>
+      )}
     </div>
   );
 }
