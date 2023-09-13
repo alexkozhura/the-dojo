@@ -11,6 +11,7 @@ import Signup from './pages/signup/Signup'
 import Login from './pages/login/Login'
 import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
+import OnlineUsers from './components/OnlineUsers'
 
 function App() {
   const { user, authIsReady } = useAuthContext()
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/login" element={!user ? <Login /> : < Navigate to="/"/>} />
               </Routes>
           </div>
+          {user && <OnlineUsers />}
         </Router>
       )}
     </div>

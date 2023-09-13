@@ -29,7 +29,6 @@ export const useCollection = (colRef, _queryProps, _orderBy) => {
     useEffect(() => {
         const unsub = onSnapshot(firestoreCollection, (snapshot) => {
             let results = []
-            console.log('reading the documents')
             snapshot.docs.forEach(doc => {
                 results.push({ ...doc.data(), id: doc.id })
             })
