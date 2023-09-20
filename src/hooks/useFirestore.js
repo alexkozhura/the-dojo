@@ -1,6 +1,6 @@
 import { useReducer, useEffect, useState } from "react"
 import { db } from "../firebase/config"
-import { addDoc, deleteDoc, doc, serverTimestamp, collection } from "firebase/firestore"
+import { addDoc, deleteDoc, doc, serverTimestamp, collection, updateDoc } from "firebase/firestore"
 
 let initialState = {
   document: null,
@@ -13,12 +13,14 @@ const firestoreReducer = (state, action) => {
   switch (action.type) {
     case "IS_PENDING":
       return { success: false, isPending: true, error: null, document: null }
-    case "DELETED_DOCUMENT":
-      return { isPending: false, document: null, success: true, error: null }
-    case "ERROR":
-      return { success: false, isPending: false, error: action.payload, document: null }
     case "ADDED_DOCUMENT":
       return { success: true, isPending: false, error: null, document: action.payload }
+    case "DELETED_DOCUMENT":
+      return { isPending: false, document: null, success: true, error: null }
+    case "UPDATED_DOCUMENT":
+      return { isPending: false, document: action.payload, success: true, error: null }
+    case "ERROR":
+      return { success: false, isPending: false, error: action.payload, document: null }
     default:
       return state
   }
@@ -72,6 +74,21 @@ export const useFirestore = (colName) => {
     }
   }, [])
 
-  return { addDocument, deleteDocument, response }
+  // update a document
+  const updateDocument = async (id, updates) => {
+    dispatch({ type: 'IS_PENDING' })
+
+    try {
+      const docRef = doc(db, colName, id)
+      await updateDoc(docRef, updates)
+      dispatchIfNotCancelled({ type: 'UPDATED_DOCUMENT', payload: docRef })
+      return docRef
+    } catch (error) {
+      dispatchIfNotCancelled({ type: 'ERROR', payload: 'could not update' })
+      return null
+    }
+  }
+
+  return { addDocument, deleteDocument, updateDocument, response }
 
 }
